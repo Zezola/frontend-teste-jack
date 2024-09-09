@@ -1,5 +1,9 @@
 import axios from "axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import {AuthProvider} from "../context/AuthProvider"
+import { AuthContext } from "../context/AuthContext";
+import { loginAPI } from "../services/AuthService";
+import { Navigate, useNavigate } from "react-router-dom";
 
 
 function LoginForm () {
@@ -21,26 +25,28 @@ function LoginForm () {
     setFormData(prevData => ({...prevData, [name]: value}))
   }
 
-  const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    axios.post('http://localhost:3000/auth/signin', {
-      email: formData.email,
-      password: formData.password
-    })
-    .then(function (response) {
-      console.log(response)
-      setFormData({
-        email: '',
-        password: ''
-      })
-    })
-    .catch(function (error) {
-      console.log(error)
-    })
+  const {signed, setSigned} = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  // take the formData.email and formData.password and pass it to the login function from the context
+  const handleSubmit = async (e, email: string, password: string) => {
+    email = formData.email;
+    password = formData.password;
+    e.preventDefault();
+    
+    //Call the loginAPI from the AuthService. Then take the status code of the response.
+    //if it was successfull, (status 200) we can set the signed variable to true
+    const data = await loginAPI(email, password)
+      .then(data => data?.status)
+    if (data === 200) {
+      setSigned(true)
+      navigate("/dashboard")
+    }
+    
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => handleSubmit(e, formData.email, formData.password)}>
       <div className='email_input'>
         <label>Email</label>
         <input name='email' onChange={handleChange} value={formData.email}></input>
@@ -52,7 +58,7 @@ function LoginForm () {
       <div className='submit_button'>
         <button type='submit'>Login</button>
       </div>
-    </form>
+    </form>  
   )
 }
 
