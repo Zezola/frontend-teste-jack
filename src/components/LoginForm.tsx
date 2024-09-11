@@ -24,9 +24,10 @@ function LoginForm () {
     const {name, value} = e.target;
     setFormData(prevData => ({...prevData, [name]: value}))
   }
-
+  
+  //get the signed and setSigned state variables from our AuthContext
   const {signed, setSigned} = useContext(AuthContext);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   // take the formData.email and formData.password and pass it to the login function from the context
   const handleSubmit = async (e, email: string, password: string) => {
@@ -34,15 +35,13 @@ function LoginForm () {
     password = formData.password;
     e.preventDefault();
     
-    //Call the loginAPI from the AuthService. Then take the status code of the response.
-    //if it was successfull, (status 200) we can set the signed variable to true
-    const data = await loginAPI(email, password)
-      .then(data => data?.status)
-    if (data === 200) {
+    //Call the loginAPI from the AuthService.
+    const data = await loginAPI(email, password) // the data receives the access_token
+    localStorage.setItem("access_token", data.access_token);
+    if (!(localStorage.getItem("access_token") === null)) {
       setSigned(true)
       navigate("/dashboard")
     }
-    
   }
 
   return (
