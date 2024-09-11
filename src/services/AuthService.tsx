@@ -8,7 +8,7 @@ export const loginAPI = async (email: string, password: string) => {
             email: email,
             password: password
         })
-        return data
+        return data.data
     } catch (error) {
         console.log(error)
     }
