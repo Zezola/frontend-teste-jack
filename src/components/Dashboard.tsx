@@ -1,15 +1,8 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import axios from "axios"
 import { useEffect, useState } from "react";
 import CreateTask from "./CreateTask";
 import { jwtDecode } from "jwt-decode";
-
-// TODO: Make the API request to get ALL tasks passing the auth-token in the HEADERS
-
-
-interface jwtPayload {
-    userId: string
-}
 
 
 function Dashboard ({signed}) {
@@ -30,6 +23,15 @@ function Dashboard ({signed}) {
         .then((res) => setTasks(res.data))
         .catch((err) => console.log(err))
     })
+
+    const handleUpdate = () => {
+        console.log("UPDATE")
+    }
+
+    const handleDelete = () => {
+        console.log("DELETE")
+    }
+
     if (signed) {
         return (
             <>
@@ -40,6 +42,8 @@ function Dashboard ({signed}) {
                                 <div key={index}>
                                     <h4>{task.name}</h4>
                                     <p>{task.description}</p>
+                                    <button onClick={handleUpdate}>Alterar</button>
+                                    <button onClick={handleDelete}>Deletar</button>
                                 </div>
                             )
                         })
