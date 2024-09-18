@@ -1,11 +1,13 @@
+import axios from "axios";
 import { useState } from "react";
 
-interface ICreateTask {
-    name: string,
-    description: string
-}
-
-function CreateTask () {
+function CreateTask (userId) {
+    const token = localStorage.getItem("access_token");
+    interface ICreateTask {
+        name: string,
+        description: string
+    }
+    
     const [formData, setFormData] = useState<ICreateTask>({
         name: '',
         description: ''
@@ -17,18 +19,35 @@ function CreateTask () {
     }
 
     const handleSubmit = (e, name, description) => {
-        
+        e.preventDefault()
+        axios.post(`http://localhost:3000/task`, {
+            name: name,
+            description: description,
+            userId: userId.userId,
+            completed: false
+        },
+        {headers: {
+            "Authorization": `Bearer ${token}`
+        }}
+        )
+        .then((res) => {
+            setFormData({
+                name: '',
+                description: ''
+            })
+        })
+        .catch(err => console.error(err))
     }
 
     return (
         <form onSubmit={(e) => handleSubmit(e, formData.name, formData.description)}>
             <div className='task_name_input'>
                 <label>Task Name</label>
-                <input name='task_name' onChange={handleChange} value={formData.name}></input>
+                <input name='name' onChange={handleChange} value={formData.name}></input>
             </div>
             <div className='task_description_input'>
                 <label>Task Description</label>
-                <input name='task_description' onChange={handleChange} value={formData.description}></input>
+                <input name='description' onChange={handleChange} value={formData.description}></input>
             </div>
             <div className='submit_button'>
                 <button type='submit'>Create Task</button>
