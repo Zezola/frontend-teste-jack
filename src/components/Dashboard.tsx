@@ -28,8 +28,13 @@ function Dashboard ({signed}) {
         console.log("UPDATE")
     }
 
-    const handleDelete = () => {
-        console.log("DELETE")
+    const handleDelete = (id: number) => {
+        //TODO:
+        //receive the task id
+        //send a delete request to the api
+        axios.delete(`http://localhost:3000/task/${id}`, {
+            headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
+        })
     }
 
     if (signed) {
@@ -41,9 +46,10 @@ function Dashboard ({signed}) {
                             return (
                                 <div key={index}>
                                     <h4>{task.name}</h4>
+                                    <p>{task.id}</p>
                                     <p>{task.description}</p>
                                     <button onClick={handleUpdate}>Alterar</button>
-                                    <button onClick={handleDelete}>Deletar</button>
+                                    <button onClick={() => handleDelete(task.id)}>Deletar</button>
                                 </div>
                             )
                         })
