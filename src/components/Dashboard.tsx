@@ -1,20 +1,14 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import axios from "axios"
 import { useEffect, useState } from "react";
 import CreateTask from "./CreateTask";
 import { jwtDecode } from "jwt-decode";
 
-// TODO: Make the API request to get ALL tasks passing the auth-token in the HEADERS
-
-
-interface jwtPayload {
-    userId: string
-}
-
 
 function Dashboard ({signed}) {
-    let [tasks, setTasks] = useState([]);
-    let [userId, setUserId] = useState<string | null>(null);
+    const [tasks, setTasks] = useState([]);
+    const [userId, setUserId] = useState<string | null>(null);
+    const [isDisabled, setIsDisabled] = useState(false);
    
     useEffect(() => {
         const token = localStorage.getItem("access_token");
@@ -30,6 +24,17 @@ function Dashboard ({signed}) {
         .then((res) => setTasks(res.data))
         .catch((err) => console.log(err))
     })
+
+    const handleUpdate = (id) => {
+        setIsDisabled(!isDisabled)
+    }
+
+    const handleDelete = (id: number) => {
+        axios.delete(`http://localhost:3000/task/${id}`, {
+            headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
+        })
+    }
+
     if (signed) {
         return (
             <>
@@ -38,8 +43,13 @@ function Dashboard ({signed}) {
                         tasks.map((task,index) => {
                             return (
                                 <div key={index}>
-                                    <h4>{task.name}</h4>
-                                    <p>{task.description}</p>
+                                    <form>
+                                        <input name="task_name" value={task.name} disabled={isDisabled}/>
+                                        <input name="task_description" disabled={isDisabled} value={task.description}></input>
+                                        <button disabled>Concluir</button>
+                                    </form>
+                                    <button onClick={() => handleUpdate(task.id)}>Alterar</button>
+                                    <button onClick={() => handleDelete(task.id)}>Deletar</button>
                                 </div>
                             )
                         })
