@@ -6,8 +6,9 @@ import { jwtDecode } from "jwt-decode";
 
 
 function Dashboard ({signed}) {
-    let [tasks, setTasks] = useState([]);
-    let [userId, setUserId] = useState<string | null>(null);
+    const [tasks, setTasks] = useState([]);
+    const [userId, setUserId] = useState<string | null>(null);
+    const [isDisabled, setIsDisabled] = useState(false);
    
     useEffect(() => {
         const token = localStorage.getItem("access_token");
@@ -24,14 +25,11 @@ function Dashboard ({signed}) {
         .catch((err) => console.log(err))
     })
 
-    const handleUpdate = () => {
-        console.log("UPDATE")
+    const handleUpdate = (id) => {
+        setIsDisabled(!isDisabled)
     }
 
     const handleDelete = (id: number) => {
-        //TODO:
-        //receive the task id
-        //send a delete request to the api
         axios.delete(`http://localhost:3000/task/${id}`, {
             headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
         })
@@ -45,10 +43,12 @@ function Dashboard ({signed}) {
                         tasks.map((task,index) => {
                             return (
                                 <div key={index}>
-                                    <h4>{task.name}</h4>
-                                    <p>{task.id}</p>
-                                    <p>{task.description}</p>
-                                    <button onClick={handleUpdate}>Alterar</button>
+                                    <form>
+                                        <input name="task_name" value={task.name} disabled={isDisabled}/>
+                                        <input name="task_description" disabled={isDisabled} value={task.description}></input>
+                                        <button disabled>Concluir</button>
+                                    </form>
+                                    <button onClick={() => handleUpdate(task.id)}>Alterar</button>
                                     <button onClick={() => handleDelete(task.id)}>Deletar</button>
                                 </div>
                             )
