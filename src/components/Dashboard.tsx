@@ -3,6 +3,7 @@ import axios from "axios"
 import { useEffect, useState } from "react";
 import CreateTask from "./CreateTask";
 import { jwtDecode } from "jwt-decode";
+import Task from "./Task";
 
 
 function Dashboard ({signed}) {
@@ -25,7 +26,7 @@ function Dashboard ({signed}) {
         .catch((err) => console.log(err))
     })
 
-    const handleUpdate = (id) => {
+    const handleUpdate = (id : number) => {
         setIsDisabled(!isDisabled)
     }
 
@@ -42,16 +43,16 @@ function Dashboard ({signed}) {
                     {
                         tasks.map((task,index) => {
                             return (
-                                <div key={index}>
-                                    <form>
-                                        <input name="task_name" value={task.name} disabled={isDisabled}/>
-                                        <input name="task_description" disabled={isDisabled} value={task.description}></input>
-                                        <button disabled>Concluir</button>
-                                    </form>
-                                    <button onClick={() => handleUpdate(task.id)}>Alterar</button>
-                                    <button onClick={() => handleDelete(task.id)}>Deletar</button>
-                                </div>
-                            )
+                                <Task 
+                                key={index}
+                                id={task.id}
+                                name={task.name} 
+                                description={task.description} 
+                                isCompleted={task.isCompleted}
+                                onDelete={() => handleDelete(task.id)}
+                                onUpdate={() => handleUpdate(task.id)}
+                                />
+                            )   
                         })
                     }
                 </div>
