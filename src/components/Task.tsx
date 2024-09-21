@@ -1,4 +1,5 @@
 import { FunctionComponent } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 
 interface TaskProps {
     id: number,
@@ -10,7 +11,7 @@ interface TaskProps {
 }
  
 const Task: FunctionComponent<TaskProps> = ({id, name, description, isCompleted, onDelete, onUpdate}) => {
-    
+    const navigate = useNavigate();
 
     return ( 
         <div className="task-container">
@@ -21,7 +22,7 @@ const Task: FunctionComponent<TaskProps> = ({id, name, description, isCompleted,
                 <form>
                     <input type="checkbox" checked={isCompleted}></input>
                 </form>
-                <button onClick={() => onUpdate(id) }>Alterar</button>
+                <button onClick={() => navigate(`/task/${id}`) }>Alterar</button>
                 <button onClick={() => onDelete(id)}>Deletar</button>
             </div>
         </div>
