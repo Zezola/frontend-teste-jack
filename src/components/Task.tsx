@@ -1,5 +1,5 @@
 import { FunctionComponent } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface TaskProps {
     id: number,
@@ -10,7 +10,7 @@ interface TaskProps {
     onUpdate: (id: number) => void,
 }
  
-const Task: FunctionComponent<TaskProps> = ({id, name, description, isCompleted, onDelete, onUpdate}) => {
+const Task: FunctionComponent<TaskProps> = ({id, name, description, isCompleted, onDelete}) => {
     const navigate = useNavigate();
 
     return ( 

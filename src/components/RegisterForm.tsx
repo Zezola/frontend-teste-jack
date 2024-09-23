@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useState } from 'react'
 
-function RegisterForm () {
+const RegisterForm : React.FunctionComponent = () => {
       //interface for referencing in the form data
   interface RegisterFormState {
     email: string,

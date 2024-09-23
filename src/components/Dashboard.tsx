@@ -5,8 +5,12 @@ import CreateTask from "./CreateTask";
 import { jwtDecode } from "jwt-decode";
 import Task from "./Task";
 
+interface DashboardProps {
+    signed: boolean
+}
 
-function Dashboard ({signed}) {
+
+const Dashboard : React.FunctionComponent<DashboardProps> = ({signed}) => {
     const [tasks, setTasks] = useState([]);
     const [userId, setUserId] = useState<string | null>(null);
     const [isDisabled, setIsDisabled] = useState(false);
