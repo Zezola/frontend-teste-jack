@@ -1,12 +1,10 @@
-import axios from "axios";
 import { useContext, useState } from "react";
-import {AuthProvider} from "../context/AuthProvider"
 import { AuthContext } from "../context/AuthContext";
 import { loginAPI } from "../services/AuthService";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
-function LoginForm () {
+const LoginForm : React.FunctionComponent = () => {
 //interface for referencing in the form data
   interface LoginFormState {
     email: string,

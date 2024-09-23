@@ -1,7 +1,11 @@
 import axios from "axios";
 import { useState } from "react";
 
-function CreateTask (userId) {
+interface CreateTaskProps {
+    userId: number
+}
+
+const CreateTask : React.FunctionComponent<CreateTaskProps> = (userId) => {
     const token = localStorage.getItem("access_token");
     interface ICreateTask {
         name: string,
