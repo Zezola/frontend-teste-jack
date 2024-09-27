@@ -34,8 +34,8 @@ const Dashboard : React.FunctionComponent<DashboardProps> = ({signed}) => {
         setIsDisabled(!isDisabled)
     }
 
-    const handleDelete = (id: number) => {
-        axios.delete(`http://localhost:3000/task/${id}`, {
+    const handleDelete = async (id: number) => {
+        await axios.delete(`http://localhost:3000/task/${id}`, {
             headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
         })
     }

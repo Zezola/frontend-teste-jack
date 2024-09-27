@@ -1,5 +1,11 @@
 import axios from "axios";
-import { useState } from "react";
+import { Field, Form, Formik } from "formik";
+import * as Yup from 'yup';
+
+const createTaskValidationSchema = Yup.object().shape({
+    name: Yup.string().min(5, 'Nome precisa ter ao menos 5 caracteres').required('Nome nao pode estar em branco'),
+    description: Yup.string().required('Descricao nao pode estar em branco')
+})
 
 interface CreateTaskProps {
     userId: number
@@ -7,56 +13,52 @@ interface CreateTaskProps {
 
 const CreateTask : React.FunctionComponent<CreateTaskProps> = (userId) => {
     const token = localStorage.getItem("access_token");
-    interface ICreateTask {
-        name: string,
-        description: string
-    }
-    
-    const [formData, setFormData] = useState<ICreateTask>({
-        name: '',
-        description: ''
-    })
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = e.target;
-        setFormData(prevData => ({...prevData, [name]: value}))
-    }
-
-    const handleSubmit = (e, name, description) => {
-        e.preventDefault()
-        axios.post(`http://localhost:3000/task`, {
-            name: name,
-            description: description,
-            userId: userId.userId,
-            completed: false
-        },
-        {headers: {
-            "Authorization": `Bearer ${token}`
-        }}
-        )
-        .then((res) => {
-            setFormData({
-                name: '',
-                description: ''
-            })
-        })
-        .catch(err => console.error(err))
+    const handleSubmit = async (name:string, description:string) => {       
+        try {
+            const response = await axios.post(`http://localhost:3000/task`, {
+                name: name,
+                description: description,
+                userId: userId.userId,
+                completed: false
+            },
+            {headers: {
+                "Authorization": `Bearer ${token}`
+            }}
+            )
+            console.log(response.data)
+        } catch (error) {
+            console.error(error)
+        }        
     }
 
     return (
-        <form onSubmit={(e) => handleSubmit(e, formData.name, formData.description)}>
-            <div className='task_name_input'>
-                <label>Task Name</label>
-                <input name='name' onChange={handleChange} value={formData.name}></input>
-            </div>
-            <div className='task_description_input'>
-                <label>Task Description</label>
-                <input name='description' onChange={handleChange} value={formData.description}></input>
-            </div>
-            <div className='submit_button'>
-                <button type='submit'>Create Task</button>
-            </div>
-        </form>  
+        <Formik
+        initialValues={{name: '', description: ''}}
+        validationSchema={createTaskValidationSchema}
+        onSubmit={(values) => handleSubmit(values.name, values.description)}
+        >
+            {({errors, touched}) => (
+                <Form>
+                <div>
+                    <label htmlFor='name'>Name: </label>
+                    <Field id="name" name="name" placeholder="name"></Field>
+                    {touched.name && errors.name && <div>{errors.name}</div>}
+                </div>
+                <div>
+                    <label htmlFor='description'>Description: </label>
+                    <Field id="description" name="description" placeholder="description"></Field>
+                    {touched.description && errors.description && <div>{errors.description}</div>}
+                </div>
+                <div>
+                    <button type="submit">Concluir</button>
+                </div>
+            </Form>
+            )
+
+            }
+
+        </Formik> 
     )
 }
 

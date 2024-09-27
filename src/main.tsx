@@ -1,6 +1,6 @@
-import { StrictMode, useContext } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import { AuthProvider } from './context/AuthProvider.tsx'
 
@@ -11,8 +11,7 @@ createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <AuthProvider>
           <App/>
-        </AuthProvider>
-        
+        </AuthProvider>        
       </BrowserRouter> 
        
   </StrictMode>,

@@ -1,57 +1,70 @@
 import axios from 'axios';
+import { Field, Form, Formik } from 'formik';
 import { useState } from 'react'
+import * as Yup from 'yup';
 
 const RegisterForm : React.FunctionComponent = () => {
-      //interface for referencing in the form data
-  interface RegisterFormState {
-    email: string,
-    password: string
-  }
-
-  //state for managing the form data
-  const [formData, setFormData] = useState<RegisterFormState>({
-    email: '',
-    password: ''
+  //Set up a success message
+  const [successMsg, setSuccessMsg] = useState('')
+  //Using yup for field validation
+  const registerFormSchema = Yup.object().shape({
+    email: Yup.string()
+      .email('Invalid email format')
+      .min(8, 'At least 8 chars')
+      .max(25, 'Max of 25 chars')
+      .required('Email is required'),
+    password: Yup.string()
+      .min(5, 'Password must be at least 5 chars long')
+      .max(15, 'Password can be at maximum 15 chars long')
+      .required('Password is required')
   })
 
-  //function for keeping track of the form data
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
-    setFormData(prevData => ({...prevData, [name]: value}))
-  }
-
-  const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    axios.post('http://localhost:3000/user', {
-      email: formData.email,
-      password: formData.password
-    })
-    .then(function (response) {
-      console.log(response)
-      setFormData({
-        email: '',
-        password: ''
-      })
-    })
-    .catch(function (error) {
-      console.log(error)
-    })
-  }
-
   return (
-    <form onSubmit={handleSubmit}>
-      <div className='email_input'>
-        <label>Email</label>
-        <input name='email' onChange={handleChange} value={formData.email}></input>
-      </div>
-      <div className='password_input'>
-        <label>Password</label>
-        <input name='password' onChange={handleChange} value={formData.password}></input>
-      </div>
-      <div className='submit_button'>
-        <button type='submit'>Register</button>
-      </div>
-    </form>
+    <div>
+      <h1>Register</h1>
+      <Formik
+      initialValues={{email: '', password: ''}}
+      validationSchema={registerFormSchema}
+      onSubmit={(values,action) => {
+        axios.post(`http://localhost:3000/user`, {
+          email: values.email,
+          password: values.password
+        })
+        .then((res) => {
+          if (res.status === 201) {
+            setSuccessMsg('Usuario cadastrado com sucesso')
+            setTimeout(() => {
+              setSuccessMsg('')
+            },2000)
+          }
+        })
+        .catch(error => console.error(error))
+        action.setSubmitting(false)
+      }}
+      >
+        {({errors, touched}) => (
+            <Form>
+            <div>
+              <label htmlFor='email'>Email: </label>
+              <Field id="email" name="email" placeholder="email"></Field>
+              {touched.email && errors.email && <div>{errors.email}</div>}
+            </div>
+            <div className='password_input'>
+              <label htmlFor='password'>Password: </label>
+              <Field id="password" name="password" placeholder="password"></Field>
+              {touched.password && errors.password && <div>{errors.password}</div>}
+            </div>
+            <div className='submit_button'>
+              <button type='submit'>Register</button>
+            </div>
+            <div>
+              {successMsg}
+            </div>  
+          </Form>
+        )}
+        
+      </Formik>
+    </div>
   )
 }
 
