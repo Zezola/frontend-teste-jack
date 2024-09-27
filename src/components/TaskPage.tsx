@@ -1,6 +1,8 @@
 import axios from "axios";
+import { Field, Form, Formik } from "formik";
 import { FunctionComponent, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import * as Yup from "yup";
 
 interface TaskPageProps {
     id: number
@@ -11,26 +13,14 @@ interface iTask {
     description: string,
     completed: boolean
 }
-
-interface RegisterFormState {
-    name: string,
-    description: string
-}
  
 const TaskPage : FunctionComponent<TaskPageProps> = () => {
-    const [task, setTask] = useState<iTask>({name: "", description: "", completed: false})
-    //state for managing the form data
-    const [formData, setFormData] = useState<RegisterFormState>({
-        name: '',
-        description: '',
+    const updateTaskSchemaValidation = Yup.object().shape({
+        name: Yup.string().min(5, 'Nome precisa ter ao menos 5 caracteres').required('Nome nao pode estar em branco'),
+        description: Yup.string().required('Descricao nao pode estar em branco')
     })
 
-    //function for keeping track of the form data
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = e.target;
-        setFormData(prevData => ({...prevData, [name]: value}))
-    }
-
+    const [task, setTask] = useState<iTask>({name: "", description: "", completed: false})
     const navigate = useNavigate();
     const {taskId} = useParams();
 
@@ -43,39 +33,45 @@ const TaskPage : FunctionComponent<TaskPageProps> = () => {
        
     })
 
-    const handleUpdate = async () => {
-        let name = formData.name;
-        let description = formData.description
-        if (!(name.length > 0 && description.length > 0)) {
-            name = task.name
-            description = task.description
-        }
+    const handleSubmit = async (name: string, description: string) => {
         try {
-            const payload = await axios.patch(`http://localhost:3000/task/${taskId}`, {
+            const response = await axios.patch(`http://localhost:3000/task/${taskId}`, {
                 name: name,
                 description: description
-            },
-            {
-                headers: {'Authorization' : `Bearer ${localStorage.getItem('access_token')}`}
+            }, {
+                headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
             })
-            console.log(payload.data)
+            console.log(response.data)
             navigate("/dashboard")
-        } catch (err) {
-            console.error(err)
+        } catch (error) {
+            console.error(error)
         }
-       
     }
 
     return ( 
         <div>
-            <form>
-                <label>Nome</label>
-                <input type="text" placeholder={task.name} name="name" onChange={handleChange} value={formData.name}></input>
-                <label>Description</label>
-                <input type="text" placeholder={task.description} name="description" value={formData.description} onChange={handleChange}></input>
-            </form>
-            <button onClick={() => navigate("/dashboard")}>Voltar as Tarefas</button>
-            <button onClick={handleUpdate}>Concluir Alteração</button>
+            <Formik
+            validationSchema={updateTaskSchemaValidation}
+            initialValues={{name: '', description: ''}}
+            onSubmit={(values) => handleSubmit(values.name, values.description)}
+            >
+                {({errors, touched }) => (
+                    <Form>
+                        <div>
+                            <label htmlFor="name">Nome: </label>
+                            <Field id="name" name="name" placeholder={task.name}></Field>
+                            {touched.name && errors.name && <div>{errors.name}</div>}
+                        </div>
+                        <div>
+                            <label htmlFor="description">Description: </label>
+                            <Field id="description" name="description" placeholder={task.description}></Field>
+                            {touched.name && errors.name && <div>{errors.name}</div>}
+                        </div>
+                        <button onClick={() => navigate("/dashboard")}>Voltar</button>
+                        <button type="submit">Concluir Alteracao</button>
+                    </Form>
+                )}
+            </Formik>
         </div>
      );
 }
